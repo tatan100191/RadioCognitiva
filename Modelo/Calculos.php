@@ -125,7 +125,7 @@ class Calculos {
         $result = $conexion->consultar($sql);
         if ($result->num_rows > 0) {
             $array = array();
-            $primarios = array();
+            
             while ($row = $result->fetch_assoc()) {
                 $enlace = new Enlace();
                 $enlace->setTipoEnlace($row['tipoEnlace']);
@@ -151,11 +151,10 @@ class Calculos {
                 }
                 $cuenta++;
             }
-            $this->insertarEnlaces($enlace);
         }else {
-            echo 'alert(\"<h1>0 results</h1>\")';
-            return "<h1>0 results</h1>";
+            $enlace->setCanal(1);
         }
+        $this->insertarEnlaces($enlace);
     }
     
     public function cargarDatosEnlacesSecundarios($enlace){
