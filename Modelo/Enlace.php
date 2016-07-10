@@ -61,7 +61,7 @@ class Enlace {
     }
 
     function getPotencia() {
-        return $this->potencia;
+        return self::POTENCIA;
     }
 
     function setTipoEnlace($tipoEnlace) {

@@ -14,5 +14,6 @@ require_once ('../Modelo/Calculos.php');
 $calculos = new Calculos();
 $numPrimarios = $_POST['enlacesPrimarios'];
 $numSecundarios = $_POST['enlacesSecundarios'];
+echo $numPrimarios;
 $calculos->cargarDatosEnlaces($numSecundarios, $numPrimarios)
 ?>
