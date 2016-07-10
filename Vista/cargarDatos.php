@@ -10,14 +10,9 @@
  *
  * @author Tatan
  */
-require_once ('../Modelo/Facade.php');
-$facade = new Facade();
-if($_POST['operacion']=="banda"){
-    $banda = $facade->getBanda($_POST['banda']);
-    echo json_encode($banda, JSON_FORCE_OBJECT);
-}   
-if ($_POST['operacion']=="llamadas"){
-    $llamadas = $facade->getLlamadas($_POST['banda']);
-    echo json_encode($llamadas);
-}
+require_once ('../Modelo/Calculos.php');
+$calculos = new Calculos();
+$numPrimarios = $_POST['enlacesPrimarios'];
+$numSecundarios = $_POST['enlacesSecundarios'];
+$calculos->cargarDatosEnlaces($numSecundarios, $numPrimarios)
 ?>

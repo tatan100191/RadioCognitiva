@@ -88,7 +88,7 @@ class Calculos {
         $enlace->setCoordenadaX(rand(1, 200));
         $enlace->setCoordenadaY(rand(1, 200));
         $enlace->setTiempo(rand(1, 20));
-        cargarDatosEnlacesPrimarios($enlace);
+        $this->cargarDatosEnlacesPrimarios($enlace);
         $count++;
      }
      $count = 1;
@@ -99,7 +99,7 @@ class Calculos {
         $enlace->setCoordenadaX(rand(1, 200));
         $enlace->setCoordenadaY(rand(1, 200));
         $enlace->setTiempo(rand(1, 20));
-        cargarDatosEnlacesSecundarios($enlace);
+        $this->cargarDatosEnlacesSecundarios($enlace);
         $count++;
      }
     }
@@ -203,7 +203,7 @@ class Calculos {
                 $enlaceSecundorio->setCanal($res['canal']);
                 $enlacesSecundarios[] = $enlaceSecundorio;                
             }
-            if (calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta))
+            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta))
                 $count = $canales;   
             else {
                 $count++;
