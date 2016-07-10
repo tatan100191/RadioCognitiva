@@ -39,6 +39,9 @@ class Conexion {
 //        echo 'conexion:consultar: '.$sql;
         $conn = $this->conectar();
         $result = $conn->query($sql);
+        if(!$result){
+            printf(mysqli_error($conn));
+        }
         $conn->close();
 //        echo 'conexion:consultar: '.$result->num_rows;
         return  $result;

@@ -57,22 +57,29 @@ class Calculos {
      * $lds, $dss, $dps,
      */
        
-    protected function calcularSINRU($u, $v, $arregloP, $n, $beta) {
-        $pu= $u->getPotencia();
-        $pv= $v->getPotencia();
-        $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
-        $den2= $pv / pow($this->calDps($v, $u), $n);
-        $den1 = 0;
-        $limI = 0;
-        $limS = count($arregloP);
-        $k=0;
-        for ($i=$limI; $i<=$limS;$i++){
-            $potenciaK = $arregloP[$i]->getPotencia();
-            $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
+    protected function calcularSINRU($u, $v, $arregloP, $n, $beta, $canal) {
+        if ($v){
+            $pu= $u->getPotencia();
+            $pv= $v->getPotencia();
+            $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
+            $den2= $pv / pow($this->calDps($v, $u), $n);
+            $den1 = 0;
+            $limI = 0;
+            $limS = count($arregloP);
+            $k=0;
+            for ($i=$limI; $i<=$limS;$i++){
+                $potenciaK = $arregloP[$i]->getPotencia();
+                $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
+            }
+            $resultado = $numerador/($den1+$den2);
+            if($resultado >= $beta){
+                $u->setCanal($canal);
+                $utilitario.insertarEnlaces($u);
+                return true;
+            }
         }
-        $resultado = $numerador/($den1+$den2);
-        if($resultado >= $beta){
-            $u->setCanal($v->getCanal());
+        else {
+            $u->setCanal($canal);
             $utilitario.insertarEnlaces($u);
             return true;
         }
@@ -158,28 +165,30 @@ class Calculos {
     }
     
     public function cargarDatosEnlacesSecundarios($enlace){
-        $this->conexion->conectar();
         $count = 1;
-        $sql = "Select valor from pargenerales where codparametro = \'numcanales\'";
+        $canales = "";
+        $sql = "Select valor from pargenerales where codparametro = 'numcanales'";
         $resultado = $this->conexion->consultar($sql);
         while ($res = mysqli_fetch_array($resultado)) {
             $canales = $res['valor'];
         }
-        $sql = "Select valor from pargenerales where codparametro = \'atenuacion\'";
+        $atenuacion = "";
+        $sql = "Select valor from pargenerales where codparametro = 'atenuacion'";
         $resultado = $this->conexion->consultar($sql);
         while ($res = mysqli_fetch_array($resultado)) {
             $atenuacion = $res['valor'];
         }
-        $sql = "Select valor from pargenerales where codparametro = \'beta\'";
+        $beta = "";
+        $sql = "Select valor from pargenerales where codparametro = 'beta'";
         $resultado = $this->conexion->consultar($sql);
             while ($res = mysqli_fetch_array($resultado)) {
               $beta = $res['valor'];
         }
         while ($canales >= $count){
-            $sql = "Select * from Enlaces where canal = \'".$count."\' and tipoEnlace = \'P'";
+            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'P'";
             $resultado = $this->conexion->consultar($sql);
+            $enlacePrimario = new Enlace();
             while ($res = mysqli_fetch_array($resultado)) {
-                $enlacePrimario = new Enlace();
                 $enlacePrimario->setTipoEnlace($res['tipoEnlace']);
                 $enlacePrimario->setDistanciaAntena($res['distanciaAntena']);
                 $enlacePrimario->setCoordenadaX($res['cordenadaX']);
@@ -189,20 +198,20 @@ class Calculos {
                 $enlacePrimario->setCanal($res['canal']);
             }
             $enlacesSecundarios = array();
-            $sql = "Select * from Enlaces where canal = \'".$count."\' and tipoEnlace = \'P'";
+            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'P'";
             $resultado = $this->conexion->consultar($sql);
             while ($res = mysqli_fetch_array($resultado)) {
-                $enlaceSecundorio = new Enlace();
-                $enlaceSecundorio->setTipoEnlace($res['tipoEnlace']);
-                $enlaceSecundorio->setDistanciaAntena($res['distanciaAntena']);
-                $enlaceSecundorio->setCoordenadaX($res['cordenadaX']);
-                $enlaceSecundorio->setCoordenadaY($res['cordenadaY']);
-                $enlaceSecundorio->setTiempo($res['tiempo']);
-                $enlaceSecundorio->setPotencia($res['potencia']);
-                $enlaceSecundorio->setCanal($res['canal']);
-                $enlacesSecundarios[] = $enlaceSecundorio;                
+                $enlaceSecundario = new Enlace();
+                $enlaceSecundario->setTipoEnlace($res['tipoEnlace']);
+                $enlaceSecundario->setDistanciaAntena($res['distanciaAntena']);
+                $enlaceSecundario->setCoordenadaX($res['cordenadaX']);
+                $enlaceSecundario->setCoordenadaY($res['cordenadaY']);
+                $enlaceSecundario->setTiempo($res['tiempo']);
+                $enlaceSecundario->setPotencia($res['potencia']);
+                $enlaceSecundario->setCanal($res['canal']);
+                $enlacesSecundarios[] = $enlaceSecundario;                
             }
-            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta))
+            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count))
                 $count = $canales;   
             else {
                 $count++;
