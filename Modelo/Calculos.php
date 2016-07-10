@@ -27,13 +27,13 @@ class Calculos {
      * @return type
      */
     protected function calDps($v, $u) {
-        $x1 = $u[0].getCoordenadaX();
-        $x2 = $v[0].getCoordenadaX();
-        $y1 = $u[1].getCoordenadaY();
-        $y2 = $v[1].getCoordenadaY();
+        $x1 = $u->getCoordenadaX();
+        $x2 = $v->getCoordenadaX();
+        $y1 = $u->getCoordenadaY();
+        $y2 = $v->getCoordenadaY();
         $a2 = pow(($x2-$x1),2);
         $b2 = pow(($y2-$y1),2);
-        $c = pow(($a2+$b2),0,5);
+        $c = pow(($a2+$b2),0.5);
         return $c;
     }
     /**
@@ -58,29 +58,32 @@ class Calculos {
      */
        
     protected function calcularSINRU($u, $v, $arregloP, $n, $beta, $canal) {
-        if ($v){
+        if ($v != null){
             $pu= $u->getPotencia();
             $pv= $v->getPotencia();
             $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
             $den2= $pv / pow($this->calDps($v, $u), $n);
             $den1 = 0;
             $limI = 0;
+            $potenciaK = 0;
             $limS = count($arregloP);
-            $k=0;
-            for ($i=$limI; $i<=$limS;$i++){
-                $potenciaK = $arregloP[$i]->getPotencia();
+            $enlaceAux = new Enlace();
+            for ($i=$limI; $i<$limS;$i++){
+                $enlaceAux = $arregloP[$i];
+                $potenciaK = $enlaceAux->getPotencia();
                 $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
             }
             $resultado = $numerador/($den1+$den2);
+            echo "Resultado: ".$resultado."<br>";
             if($resultado >= $beta){
                 $u->setCanal($canal);
-                $this->$utilitario.insertarEnlaces($u);
+                $this->utilitario->insertarEnlaces($u);
                 return true;
             }
         }
         else {
             $u->setCanal($canal);
-            $utilitario.insertarEnlaces($u);
+            $this->utilitario->insertarEnlaces($u);
             return true;
         }
         return false;
@@ -163,10 +166,8 @@ class Calculos {
                 $cuenta++;
             }
         }else {
-            echo ' <br><br> Canal 1 siempreeee <br><br>';
             $enlace->setCanal(1);
         }
-        echo ' <br><br> Canal:::' . $enlace->getCanal() . '<br><br>';
         $this->utilitario->insertarEnlaces($enlace);
     }
     
@@ -204,7 +205,7 @@ class Calculos {
                 $enlacePrimario->setCanal($res['canal']);
             }
             $enlacesSecundarios = array();
-            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'P'";
+            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'S'";
             $resultado = $this->conexion->consultar($sql);
             while ($res = mysqli_fetch_array($resultado)) {
                 $enlaceSecundario = new Enlace();
@@ -217,8 +218,8 @@ class Calculos {
                 $enlaceSecundario->setCanal($res['canal']);
                 $enlacesSecundarios[] = $enlaceSecundario;                
             }
-            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count))
-                $count = $canales;   
+            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count) == true)
+                $count = $canales+1;   
             else {
                 $count++;
             }
