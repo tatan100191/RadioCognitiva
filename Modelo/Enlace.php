@@ -20,7 +20,7 @@ class Enlace {
     var $tiempo;
     var $canal;
     var $distanciaAntena;
-    var $potencia;
+    const POTENCIA = 10;
     function __construct() {
     }
     

@@ -5,45 +5,17 @@
  * @author FABIAN
  */
 include_once 'Enlace.php';
+include_once '../Controlador/Conexion.php';
 class Calculos {
    
-// lds(u) representa la distancia que existe entre
-// el transmisor y receptor en el enlace
-// secundario u que se desea analizar.
+    var $conexion; 
+    var $utilitario; 
     
-// Cada enlace debe tener como atributo la distancia con su antena(celda)
-    public function calLds($u) {
-          $quer = "select distanciaAntena from Enlaces where enlace = \'s\'";
-          return $quer;
-    }
-// ldp(v) representa la distancia que existe entre
-// el transmisor y receptor en el enlace
-// primario v que se desea analizar.
-// 
-// Cada enlace debe tener como atributo la distancia con su antena(celda)
-    public function calLdp($v) {
-//        select distanciaCelda from tablaEnlaces where enlace = '$v';
-        return 4;
-    }
-//dss(k,u) es la distancia entre el transmisor
-//interferente del enlace secundario k al
-//receptor del enlace secundario u.
-/**
- * 
- * @param type $k arreglo de dos posiciones, coordenadas (x,y) del enlace secundario k
- * @param type $u arreglo de dos posiciones, coordenadas (x,y) del enlace secundario u
- * @return type $c, distancia entre los dos enlaces secundarios
- */
     
-    protected function calDss($k,$u) {
-        $x1 = $k[0];$x2 = $u[0];
-        $y1 = $k[1];$y2 = $u[1];
-        $a2 = pow(($x2-$x1),2);
-        $b2 = pow(($y2-$y1),2);
-        $c = pow(($a2+$b2),0,5);
-        return $c;
+    function __construct() {
+        $this->conexion = new Conexion(); 
+        $this->utilitario= new Utilitario();
     }
-    
 //dps(v,u) es la distancia entre el transmisor
 //primario interferente del enlace primario v al
 //receptor del enlace secundario u.
@@ -54,8 +26,10 @@ class Calculos {
      * @return type
      */
     protected function calDps($v, $u) {
-        $x1 = $k[0];$x2 = $v[0];
-        $y1 = $k[1];$y2 = $v[1];
+        $x1 = $u[0].getCoordenadaX();
+        $x2 = $v[0].getCoordenadaX();
+        $y1 = $u[1].getCoordenadaY();
+        $y2 = $v[1].getCoordenadaY();
         $a2 = pow(($x2-$x1),2);
         $b2 = pow(($y2-$y1),2);
         $c = pow(($a2+$b2),0,5);
@@ -82,93 +56,103 @@ class Calculos {
      * $lds, $dss, $dps,
      */
        
-    protected function calcularSINRU($u, $v, $arregloK, $arregloP, $phi, $n) {
+    protected function calcularSINRU($u, $v, $arregloP, $n, $beta) {
         $pu= $u->getPotencia();
         $pv= $v->getPotencia();
-        $numerador = $pu/pow($this->calLds($u), $n);
+        $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
         $den2= $pv / pow($this->calDps($v, $u), $n);
         $den1 = 0;
-        //se refiere al índice de sólo aquellos transmisores secundarios que tienen asignado un mismo canal.
-        $arregloK = array();
         $limI = 0;
-        $limS = count($arregloK);
+        $limS = count($arregloP);
         $k=0;
         for ($i=$limI; $i<=$limS;$i++){
-            $k=$arregloK[$i];
-            $potenciaK = $arregloP[$k]->getPotencia();
-            $den1 = $den1 + ($potenciaK/(pow($this->calDss($arregloP[$k], $u),$n)));
+            $potenciaK = $arregloP[$i]->getPotencia();
+            $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
         }
         $resultado = $numerador/($den1+$den2);
-        return $resultado;
-    }
-    protected function calcularSINRV($u, $v, $arregloK, $arregloP, $phi, $n) {
-        $pu= $u->getPotencia();
-        $pv= $v->getPotencia();
-        $pk;
-        $numerador = $pv/pow($this->calLdp($v), $n);
-        $den1 = 0;
-        //se refiere al índice de sólo aquellos transmisores secundarios que tienen asignado un mismo canal.
-        $arregloK = array();
-        $limI = 0;
-        $limS = count($arregloK);
-        for ($i=$limI; $i<=$limS;$i++){
-            $k=$arregloK[$i];
-            $potenciaK = $arregloP[$k]->getPotencia();
-            $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$k], $v),$n)));
+        if($resultado >= $beta){
+            $u->setCanal($v->getCanal());
+            $utilitario.insertarEnlaces($u);
+            return true;
         }
-        $resultado = $numerador/($den1);
-        return $resultado;
+        return false;
     }
-    protected function calcularCu($B, $sinru) {
-        $arg = 1 + $sinru;
-        return B * log($arg, 2);
+    
+    public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima){
+     while ($numEnlacesPrima >= count){
+        $enlace = new Enlace();
+        $enlace->setTipoEnlace("P");
+        $enlace->setDistanciaAntena(rand(1, 100));
+        $enlace->setCoordenadaX(rand(1, 200));
+        $enlace->setCoordenadaY(rand(1, 200));
+        $enlace->setTiempo(rand(1, 20));
+        cargarDatosEnlacesPrimarios($enlace);
+     }
+     while($numEnlacesSecun){
+        $enlace = new Enlace();
+        $enlace->setTipoEnlace("S");
+        $enlace->setDistanciaAntena(rand(1, 100));
+        $enlace->setCoordenadaX(rand(1, 200));
+        $enlace->setCoordenadaY(rand(1, 200));
+        $enlace->setTiempo(rand(1, 20));
+        cargarDatosEnlacesSecundarios($enlace);
+     }
     }
-    protected function calcularCv($B, $sinrv) {
-        $arg = 1 + $sinrv;
-        return B * log($arg, 2);
-    }
-    /**
-     * 
-     * @param type $x
-     * @param type $si
-     * @param type $pi
-     * @return type
-     * 
-     */
-    protected function fo($x, $si, $pi) {
-        $arreglox = array();
-        $arreglox = $x;
-        $parte1=0;
-        $parte21=0;
-        $parte22=0;
-        for ($i=1; $i<=$si;$i++){
-            $parte1 = $parte1 + $arreglox[$i];
+    
+    public function cargarDatosEnlacesSecundarios($enlace){
+        $this->conexion->conectar();
+        $count = 1;
+        $sql = "Select valor from pargenerales where codparametro = \'numcanales\'";
+        $resultado = $this->conexion->consultar($sql);
+        while ($res = mysqli_fetch_array($resultado)) {
+            $canales = $res['valor'];
         }
-        for ($i=1; $i<=$si;$i++){
-            $sinru = $this->calcularSINRU($u, $v, $arregloK, $arregloP, $phi, $n);
-            $parte21 = $parte21 + ($this->calcularCu($B, $sinru) * $arreglox[$i]);
+        $sql = "Select valor from pargenerales where codparametro = \'atenuacion\'";
+        $resultado = $this->conexion->consultar($sql);
+        while ($res = mysqli_fetch_array($resultado)) {
+            $atenuacion = $res['valor'];
         }
-        for ($i=1; $i<=$pi;$i++){
-            $parte22 = $parte22 + ($this->calcularCv($B, $sinrv));
+        $sql = "Select valor from pargenerales where codparametro = \'beta\'";
+        $resultado = $this->conexion->consultar($sql);
+            while ($res = mysqli_fetch_array($resultado)) {
+              $beta = $res['valor'];
         }
-        $result = $parte1 + ($parte21+$parte22);
-        return $result;
-    }
-    protected function main() {
-        $arreglo = array();
-        $si = 100;
-        for ($i=1; $i<=$si;$i++){
-            $enlace = new Enlace();
-            $enlace->setCoordenadaX(rand(5, 15));
-            $enlace->setCoordenadaY(rand(5, 15));
-            $enlace->setPotencia(rand(10, 90));
-            if(rand(0, 1) == 1){
-                $enlace->setTipoEnlace("U");
-            }else{
-                $enlace->setTipoEnlace("V");
+        while ($canales >= $count){
+            $sql = "Select * from Enlaces where canal = \'".$count."\' and tipoEnlace = \'P'";
+            $resultado = $this->conexion->consultar($sql);
+            while ($res = mysqli_fetch_array($resultado)) {
+                $enlacePrimario = new Enlace();
+                $enlacePrimario->setTipoEnlace($res['tipoEnlace']);
+                $enlacePrimario->setDistanciaAntena($res['distanciaAntena']);
+                $enlacePrimario->setCoordenadaX($res['cordenadaX']);
+                $enlacePrimario->setCoordenadaY($res['cordenadaY']);
+                $enlacePrimario->setTiempo($res['tiempo']);
+                $enlacePrimario->setPotencia($res['potencia']);
+                $enlacePrimario->setCanal($res['canal']);
             }
-            $arreglox[$i] = $enlace;
+            $enlacesSecundarios = array();
+            $sql = "Select * from Enlaces where canal = \'".$count."\' and tipoEnlace = \'P'";
+            $resultado = $this->conexion->consultar($sql);
+            while ($res = mysqli_fetch_array($resultado)) {
+                $enlaceSecundorio = new Enlace();
+                $enlaceSecundorio->setTipoEnlace($res['tipoEnlace']);
+                $enlaceSecundorio->setDistanciaAntena($res['distanciaAntena']);
+                $enlaceSecundorio->setCoordenadaX($res['cordenadaX']);
+                $enlaceSecundorio->setCoordenadaY($res['cordenadaY']);
+                $enlaceSecundorio->setTiempo($res['tiempo']);
+                $enlaceSecundorio->setPotencia($res['potencia']);
+                $enlaceSecundorio->setCanal($res['canal']);
+                $enlacesSecundarios[] = $enlaceSecundorio;                
+            }
+            if (calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta))
+                $count = $canales;   
+            else {
+                $count++;
+            }
         }
-        
-    }
+    
+}
+      
+ 
+    
 }
