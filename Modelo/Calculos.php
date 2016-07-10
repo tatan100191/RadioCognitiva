@@ -74,7 +74,7 @@ class Calculos {
             $resultado = $numerador/($den1+$den2);
             if($resultado >= $beta){
                 $u->setCanal($canal);
-                $utilitario.insertarEnlaces($u);
+                $this->$utilitario.insertarEnlaces($u);
                 return true;
             }
         }
@@ -88,6 +88,10 @@ class Calculos {
     
     public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima){
      $count = 1;
+     $sql="delete from enlace";
+     $conexion = new Conexion();
+     $bandera = $this->conexion->actualizar($sql);
+     if($bandera) echo 'Se eliminaron los enlaces correctamente.. ';
      while ($numEnlacesPrima >= $count){
         $enlace = new Enlace();
         $enlace->setTipoEnlace("P");
@@ -132,7 +136,6 @@ class Calculos {
         $result = $conexion->consultar($sql);
         if ($result->num_rows > 0) {
             $array = array();
-            
             while ($row = $result->fetch_assoc()) {
                 $enlace = new Enlace();
                 $enlace->setTipoEnlace($row['tipoEnlace']);
@@ -151,17 +154,20 @@ class Calculos {
                 }
             }
             $cuenta=1;
+
             foreach ($canalesConPrimarios as $key => $val){
-                if($val = 0){
+                if($val == 0){
                     $enlace->setCanal($cuenta);
                     break;
                 }
                 $cuenta++;
             }
         }else {
+            echo ' <br><br> Canal 1 siempreeee <br><br>';
             $enlace->setCanal(1);
         }
-        $this->insertarEnlaces($enlace);
+        echo ' <br><br> Canal:::' . $enlace->getCanal() . '<br><br>';
+        $this->utilitario->insertarEnlaces($enlace);
     }
     
     public function cargarDatosEnlacesSecundarios($enlace){
