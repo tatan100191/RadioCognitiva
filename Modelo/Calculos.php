@@ -6,27 +6,22 @@
  */
 include_once 'Enlace.php';
 class Calculos {
-    protected function sumatoriaFunction($limI, $limS, $body) {
-        $acumulado = 0;
-        for ($i=$limI; $i<=$limS;$i++){
-            $acumulado = $acumulado + $body;
-        }
-    }
+   
 // lds(u) representa la distancia que existe entre
 // el transmisor y receptor en el enlace
 // secundario u que se desea analizar.
     
 // Cada enlace debe tener como atributo la distancia con su antena(celda)
-    protected function calLds($u) {
-//        select distanciaCelda from tablaEnlaces where enlace = '$u';
-        return 3;
+    public function calLds($u) {
+          $quer = "select distanciaAntena from Enlaces where enlace = \'s\'";
+          return $quer;
     }
 // ldp(v) representa la distancia que existe entre
 // el transmisor y receptor en el enlace
 // primario v que se desea analizar.
 // 
 // Cada enlace debe tener como atributo la distancia con su antena(celda)
-    protected function calLdp($v) {
+    public function calLdp($v) {
 //        select distanciaCelda from tablaEnlaces where enlace = '$v';
         return 4;
     }

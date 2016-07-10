@@ -12,12 +12,42 @@
  * @author FABIAN
  */
 class Enlace {
+    
+
     var $tipoEnlace;
     var $coordenadaX;
     var $coordenadaY;
+    var $tiempo;
+    var $canal;
+    var $distanciaAntena;
     var $potencia;
     function __construct() {
     }
+    
+    public function getTiempo() {
+        return $this->tiempo;
+    }
+
+    public function setTiempo($tiempo) {
+        $this->tiempo = $tiempo;
+    }
+
+    public function getCanal() {
+        return $this->canal;
+    }
+
+    public function setCanal($canal) {
+        $this->canal = $canal;
+    }
+
+    public function getDistanciaAntena() {
+        return $this->distanciaAntena;
+    }
+
+    public function setDistanciaAntena($distanciaAntena) {
+        $this->distanciaAntena = $distanciaAntena;
+    }
+    
     function getTipoEnlace() {
         return $this->tipoEnlace;
     }
