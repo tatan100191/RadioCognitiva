@@ -80,7 +80,8 @@ class Calculos {
     }
     
     public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima){
-     while ($numEnlacesPrima >= count){
+     $count = 1;
+     while ($numEnlacesPrima >= $count){
         $enlace = new Enlace();
         $enlace->setTipoEnlace("P");
         $enlace->setDistanciaAntena(rand(1, 100));
@@ -88,8 +89,10 @@ class Calculos {
         $enlace->setCoordenadaY(rand(1, 200));
         $enlace->setTiempo(rand(1, 20));
         cargarDatosEnlacesPrimarios($enlace);
+        $count++;
      }
-     while($numEnlacesSecun){
+     $count = 1;
+     while($numEnlacesSecun >= $count){
         $enlace = new Enlace();
         $enlace->setTipoEnlace("S");
         $enlace->setDistanciaAntena(rand(1, 100));
@@ -97,6 +100,7 @@ class Calculos {
         $enlace->setCoordenadaY(rand(1, 200));
         $enlace->setTiempo(rand(1, 20));
         cargarDatosEnlacesSecundarios($enlace);
+        $count++;
      }
     }
     function cargarDatosEnlacesPrimarios($prEnlace){
