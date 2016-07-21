@@ -74,7 +74,6 @@ class Calculos {
                 $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
             }
             $resultado = $numerador/($den1+$den2);
-            echo "Resultado: ".$resultado."<br>";
             if($resultado >= $beta){
                 $u->setCanal($canal);
                 $this->utilitario->insertarEnlaces($u);
@@ -94,7 +93,7 @@ class Calculos {
      $sql="delete from enlace";
      $conexion = new Conexion();
      $bandera = $this->conexion->actualizar($sql);
-     if($bandera) echo 'Se eliminaron los enlaces correctamente.. ';
+     if($bandera) 
      while ($numEnlacesPrima >= $count){
         $enlace = new Enlace();
         $enlace->setTipoEnlace("P");
@@ -116,12 +115,25 @@ class Calculos {
         $this->cargarDatosEnlacesSecundarios($enlace);
         $count++;
      }
+     return $this->consultarEnlaces();
     }
+    
+    function consultarEnlaces(){
+        $sql = "Select * from enlace";
+        $resultado = $this->conexion->consultar($sql);
+        $llamadas;
+        while ($res = mysqli_fetch_array($resultado)) {
+        $llamadas[] = [ "tipoEnlace" => $res['tipoEnlace'],'cordenadaX' => $res['cordenadaX'], 
+            'cordenadaY'=> $res['cordenadaY'], 'tiempo' => $res['tiempo'], 'canal' => $res['canal']
+            ,'distanciaAntena' => $res['distanciaAntena'] ,'potencia' => $res['potencia'],'id' => $res['id']];
+        }
+        return $llamadas;
+    }
+    
     function cargarDatosEnlacesPrimarios($prEnlace){
         $enlace = new Enlace();
         $enlace = $prEnlace;
         $conexion = new Conexion();
-        
         $sql = "SELECT valor FROM pargenerales where codparametro = 'numcanales'";
         $result = $conexion->consultar($sql);
         $numCanales = 0;
