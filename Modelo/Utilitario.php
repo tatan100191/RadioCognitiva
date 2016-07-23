@@ -27,12 +27,7 @@ class Utilitario {
         $tipoEnlace = $enlace->getTipoEnlace();
         $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia) "
                 . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo."','".$canal."','".$distanciaAntena."','".$potencia."')";
-        $respuesta = $conexion->insertar($sql);
-        if($respuesta){
-            echo 'Se inserto Correctamente';
-        }else{
-            echo 'No se inserto';
-        }
+        $conexion->insertar($sql);
     }
     
 }
