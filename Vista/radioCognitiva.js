@@ -10,16 +10,29 @@ $(document).ready(function(){
 
 
 function main(){
-    $("#consultar").on("click", function(){
+    $(modalGrafica).dialog({ 
+         autoOpen: false,  
+         width: 850, 
+         height: 550, 
+         title: 'Graficar'
+     });
+    $(consultar).on("click", function(){
+        console.log($(enlacesPrimarios).val());
         consultarDatos();
     });
-    $("#grafica").hide();
+    $(grafica).hide();
+    $(grafica).on("click", function(){
+       $(modalGrafica).dialog("open");
+    });
+    $("input[name='grafica']").on("click", function(){
+        graficar($(this).val());
+    });
 }
 
 function consultarDatos(){
     
     $.ajax({
-                data:  {"enlacesPrimarios" : $(enlacesPrimarios).val(), "enlacesSecundarios" : $(enlacesSecundarios).val()},
+                data:  {"accion": 1, "enlacesPrimarios" : $(enlacesPrimarios).val(), "enlacesSecundarios" : $(enlacesSecundarios).val()},
                 url:   'cargarDatos.php',
                 type:  'post',
                 success:  function (response) {     
@@ -51,15 +64,52 @@ function consultarDatos(){
                                           "</tr>";
                         });
                          cadenaHtml = cadenaHtml + "</tbody>";
-                        $("#tablaEnlaces").html(cadenaHtml);
+                        $(tablaEnlaces).html(cadenaHtml);
                         configurarTabla();
-                        $("#grafica").show();
+                        $(grafica).show();
                 }
                 
                });
 }
 
+function graficar(tipoGrafica){     
+    $.ajax({
+                data:  {"accion": 2,"tipoGrafica" : tipoGrafica},
+                url:   'cargarDatos.php',
+                type:  'post',
+                success:  function (response) {     
+                    var grafica = JSON.parse(response);
+                    var canvas = $(canvasGrafica).get(0);
+                    var ctx = canvas.getContext('2d');
+                    var data = {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: "Usuarios por canal",
+                                fillColor: "rgba(220,220,220,0.2)",
+                                strokeColor: "rgba(220,220,220,1)",
+                                pointColor: "rgba(220,220,220,1)",
+                                pointStrokeColor: "#fff",
+                                pointHighlightFill: "#fff",
+                                pointHighlightStroke: "rgba(220,220,220,1)",
+                            }
+                            ]
+                        };
+                        var myNewChart = new Chart(ctx).Line(data, {
+                                    bezierCurve : true,
+                        });
+                    console.log(grafica);
+                    $.each(grafica, function(i, item){
+                        console.log(item );
+                        myNewChart.addData([item.y], item.x);
+                    });
+                    
+                }
+    });
+}
+
+
 
 function configurarTabla(){
-    $("#tablaEnlaces").DataTable();
+    $(tablaEnlaces).DataTable();
 }

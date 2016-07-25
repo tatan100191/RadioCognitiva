@@ -12,12 +12,30 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="js/DataTables-1.10.12/media/css/datatables.jqueryui.css">
         <script type="text/javascript" charset="utf8" src="js/DataTables-1.10.12/media/js/jquery.datatables.js"></script>
         <script type="text/javascript"  src="radioCognitiva.js"></script>
+        <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.12.0.custom/jquery-ui.css">
+        <script type="text/javascript"  src="js/jquery-ui-1.12.0.custom/jquery-ui.js"></script>
+        <script src="js/Chart.js-master/Chart.js"></script>
         <link rel="stylesheet" href="css/bootstrap-3.3.6-dist/css/bootstrap.min.css" type="text/css">
         <title>Radio Cognitiva</title>
     </head>
     <body >
         <!--tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia-->
         <div id="contenedor" style="height: 100%; width: 70%; text-align: center; margin: auto">
+            <div id="modalGrafica">
+                <ul >
+                    <li >
+                        <input type="radio" name="grafica" value="usuariosXCanal"/> 
+                        <label for="usuariosXcanal">Usuarios por Canal</label>
+                    </li>
+                    <li >
+                        <input type="radio" name="grafica" value="tiempo"/> <label>opcion 1</label>
+                    </li>
+                    <li >
+                        <input type="radio" name="grafica" value="tiempoX"/> <label>opcion 1</label>
+                    </li>
+                </ul>
+                <canvas id="canvasGrafica" height="400" width="700%"/>
+            </div>
         <div id="formulario" style="text-align: left; margin: auto">
             <table>
                 <tr>

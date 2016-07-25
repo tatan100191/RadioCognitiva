@@ -30,4 +30,15 @@ class Utilitario {
         $conexion->insertar($sql);
     }
     
+    function usuariosXcanal(){
+        $conexion = new Conexion();
+        $sql = "SELECT canal, count(*) as numeroUsuarios FROM enlace group by canal order by canal";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['canal'], "y" => $res['numeroUsuarios']];
+        }
+        return $grafica;
+    }
+    
 }
