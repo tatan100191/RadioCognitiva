@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-07-2016 a las 06:57:54
+-- Tiempo de generación: 26-07-2016 a las 06:10:06
 -- Versión del servidor: 5.6.11
 -- Versión de PHP: 5.5.3
 
@@ -38,7 +38,25 @@ CREATE TABLE IF NOT EXISTS `enlace` (
   `potencia` int(11) NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci AUTO_INCREMENT=515 ;
+
+--
+-- Volcado de datos para la tabla `enlace`
+--
+
+INSERT INTO `enlace` (`tipoEnlace`, `cordenadaX`, `cordenadaY`, `tiempo`, `canal`, `distanciaAntena`, `potencia`, `id`) VALUES
+('P', 40, 120, 1, '1', 85, 10, 503),
+('P', 40, 120, 1, '2', 85, 10, 504),
+('P', 40, 120, 1, '3', 85, 10, 505),
+('S', 180, 174, 18, '1', 67, 10, 506),
+('S', 195, 148, 12, '2', 63, 10, 507),
+('S', 143, 141, 17, '4', 64, 10, 508),
+('S', 12, 147, 13, '1', 12, 10, 509),
+('S', 70, 120, 9, '4', 39, 10, 510),
+('S', 35, 1, 14, '1', 40, 10, 511),
+('S', 127, 34, 3, '3', 63, 10, 512),
+('S', 63, 165, 4, '1', 4, 10, 513),
+('S', 63, 35, 14, '1', 11, 10, 514);
 
 -- --------------------------------------------------------
 
@@ -59,6 +77,7 @@ CREATE TABLE IF NOT EXISTS `pargenerales` (
 
 INSERT INTO `pargenerales` (`codparametro`, `descparametro`, `valor`) VALUES
 ('anchobanda', 'Es el ancho de banda', '10'),
+('atenuacion', 'atenuacion', '3'),
 ('beta', 'Umbral de interferencia', '6'),
 ('numcanales', 'Numero de canales', '8'),
 ('tamanollam', 'Tamaño llamada', '8');
