@@ -34,7 +34,8 @@ and open the template in the editor.
                         <input type="radio" name="grafica" value="tiempoX"/> <label>opcion 1</label>
                     </li>
                 </ul>
-                <canvas id="canvasGrafica" height="400" width="700%"/>
+                <div id="divCanvas">
+                </div>
             </div>
         <div id="formulario" style="text-align: left; margin: auto">
             <table>
@@ -50,10 +51,7 @@ and open the template in the editor.
             <input type="submit" id="consultar" name="enviar" tabindex="7" value="Enviar">
         </div>
             <br/>
-        <div>
-            <table id="tablaEnlaces">
-                
-            </table>
+        <div id="divTablaEnlaces">
         </div>
             <button id="grafica" >
                 Grafica

@@ -16,13 +16,17 @@ function main(){
          height: 550, 
          title: 'Graficar'
      });
+    
     $(consultar).on("click", function(){
         console.log($(enlacesPrimarios).val());
         consultarDatos();
     });
+    
     $(grafica).hide();
     $(grafica).on("click", function(){
        $(modalGrafica).dialog("open");
+       $("input[name='grafica']").prop('checked', false); 
+       $("#divCanvas").html('<canvas id="canvasGrafica" height="400" width="700%"/>');
     });
     $("input[name='grafica']").on("click", function(){
         graficar($(this).val());
@@ -30,15 +34,16 @@ function main(){
 }
 
 function consultarDatos(){
-    
     $.ajax({
                 data:  {"accion": 1, "enlacesPrimarios" : $(enlacesPrimarios).val(), "enlacesSecundarios" : $(enlacesSecundarios).val()},
                 url:   'cargarDatos.php',
                 type:  'post',
                 success:  function (response) {     
                         var enlaces = JSON.parse(response);
-                        console.log(enlaces);
-                        var cadenaHtml = "<thead>"+
+              
+                        var cadenaHtml = '<table id="tablaEnlaces">';
+                                
+                        cadenaHtml = cadenaHtml + "<thead>"+
                                             "<tr>"+
                                             "<td>Tipo Enlace</td>" +
                                             "<td>Canal</td>" +
@@ -63,8 +68,8 @@ function consultarDatos(){
                                             "<td>" +item.tiempo+"</td>" +
                                           "</tr>";
                         });
-                         cadenaHtml = cadenaHtml + "</tbody>";
-                        $(tablaEnlaces).html(cadenaHtml);
+                         cadenaHtml = cadenaHtml + "</tbody></table>";
+                        $(divTablaEnlaces).html(cadenaHtml);
                         configurarTabla();
                         $(grafica).show();
                 }
@@ -98,9 +103,7 @@ function graficar(tipoGrafica){
                         var myNewChart = new Chart(ctx).Line(data, {
                                     bezierCurve : true,
                         });
-                    console.log(grafica);
                     $.each(grafica, function(i, item){
-                        console.log(item );
                         myNewChart.addData([item.y], item.x);
                     });
                     
