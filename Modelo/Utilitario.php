@@ -25,8 +25,17 @@ class Utilitario {
         $potencia = $enlace->getPotencia();
         $tiempo = $enlace->getTiempo();
         $tipoEnlace = $enlace->getTipoEnlace();
+        $sinr = $enlace->getSinr();
+        if($sinr != null){
+            $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia, sinr) "
+                . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo.
+                "','".$canal."','".$distanciaAntena."','".$potencia."',".$sinr.")";
+        }
+        else{
         $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia) "
-                . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo."','".$canal."','".$distanciaAntena."','".$potencia."')";
+                . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo.
+                "','".$canal."','".$distanciaAntena."','".$potencia."')";
+        }
         $conexion->insertar($sql);
     }
     
