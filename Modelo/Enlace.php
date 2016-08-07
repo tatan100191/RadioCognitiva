@@ -20,6 +20,7 @@ class Enlace {
     var $tiempo;
     var $canal;
     var $distanciaAntena;
+    var $sinr;
     const POTENCIA = 10;
     function __construct() {
     }
@@ -44,6 +45,14 @@ class Enlace {
         return $this->distanciaAntena;
     }
 
+    public function setSinr($sinr) {
+        $this->sinr = $sinr;
+    }
+
+    public function getSinr() {
+        return $this->sinr;
+    }
+    
     public function setDistanciaAntena($distanciaAntena) {
         $this->distanciaAntena = $distanciaAntena;
     }
