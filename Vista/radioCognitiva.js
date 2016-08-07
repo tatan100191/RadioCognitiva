@@ -51,21 +51,33 @@ function consultarDatos(){
                                             "<td>Coordenada Y</td>" +
                                             "<td>Distancia Antena</td>" +
                                             "<td>Potencia</td>" +
+                                            "<td>Sinr</td>" +
                                             "<td>Tiempo</td>" +
                                           "</tr>"+
                                           "</thead>";
                          cadenaHtml = cadenaHtml + "<tbody>";
                         $.each(enlaces, function(i, item){
-                            console.log(item);
-                            cadenaHtml = cadenaHtml +  
-                                        "<tr>"+
+                                        if(item.canal == 0){
+                                            cadenaHtml = cadenaHtml + "<tr style='color:red;' >";
+                                        }
+                                        else{
+                                            cadenaHtml = cadenaHtml + "<tr>" ; 
+                                        }
+                            cadenaHtml = cadenaHtml + 
                                             "<td>" +item.tipoEnlace+"</td>" +
                                             "<td>" +item.canal+"</td>" +
                                             "<td>" +item.cordenadaX+"</td>" +
                                             "<td>" +item.cordenadaY+"</td>" +
                                             "<td>" +item.distanciaAntena+"</td>" +
-                                            "<td>" +item.potencia+"</td>" +
-                                            "<td>" +item.tiempo+"</td>" +
+                                            "<td>" +item.potencia+"</td>" ;
+                                    console.log(cadenaHtml);
+                                            if (item.sinr == null){
+                                                cadenaHtml = cadenaHtml + "<td> </td>";
+                                            }
+                                            else {
+                                                cadenaHtml = cadenaHtml + "<td>" +item.sinr+"</td>" ;
+                                            }
+                                            cadenaHtml = cadenaHtml+"<td>" +item.tiempo+"</td>" +
                                           "</tr>";
                         });
                          cadenaHtml = cadenaHtml + "</tbody></table>";
@@ -73,7 +85,6 @@ function consultarDatos(){
                         configurarTabla();
                         $(grafica).show();
                 }
-                
                });
 }
 
@@ -93,7 +104,7 @@ function graficar(tipoGrafica){
                                 label: "Usuarios por canal",
                                 fillColor: "rgba(220,220,220,0.2)",
                                 strokeColor: "rgba(220,220,220,1)",
-                                pointColor: "rgba(220,220,220,1)",
+                                pointColoar: "rgba(220,220,220,1)",
                                 pointStrokeColor: "#fff",
                                 pointHighlightFill: "#fff",
                                 pointHighlightStroke: "rgba(220,220,220,1)",

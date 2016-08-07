@@ -59,12 +59,14 @@ class Calculos {
       toma cualquier valor entre 2 y 4.
      * $lds, $dss, $dps,
      */
-    protected function calcularSINRU($u, $v, $arregloP, $n, $beta, $canal) {
-        if ($v != null) {
-            $pu = $u->getPotencia();
-            $pv = $v->getPotencia();
-            $numerador = $pu / pow(($u->getDistanciaAntena()), $n);
-            $den2 = $pv / pow($this->calDps($v, $u), $n);
+
+    protected function calcularSINRU($u, $v, $arregloP, $n, $beta, $canal, $numCanales) {
+        $insertado = 0;
+        if ($v != null){
+            $pu= $u->getPotencia();
+            $pv= $v->getPotencia();
+            $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
+            $den2= $pv / pow($this->calDps($v, $u), $n);
             $den1 = 0;
             $limI = 0;
             $potenciaK = 0;
@@ -78,7 +80,9 @@ class Calculos {
             $resultado = $numerador / ($den1 + $den2);
             if ($resultado >= $beta) {
                 $u->setCanal($canal);
+                $u->setSinr($resultado);
                 $this->utilitario->insertarEnlaces($u);
+                $insertado = 1;
                 return true;
             }
         } else {
@@ -86,7 +90,12 @@ class Calculos {
             $this->utilitario->insertarEnlaces($u);
             return true;
         }
-        return false;
+        if($insertado != 1 && $numCanales == $canal )
+        {
+            $u->setCanal(0);
+            $this->utilitario->insertarEnlaces($u);
+            return false;
+        }
     }
 
     public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima) {
@@ -122,18 +131,19 @@ class Calculos {
     function consultarEnlaces() {
         $sql = "Select * from enlace";
         $resultado = $this->conexion->consultar($sql);
-        $llamadas;
+        $llamadas = array() ;
         while ($res = mysqli_fetch_array($resultado)) {
-            $llamadas[] = [ "tipoEnlace" => $res['tipoEnlace'], 'cordenadaX' => $res['cordenadaX'],
-                'cordenadaY' => $res['cordenadaY'], 'tiempo' => $res['tiempo'], 'canal' => $res['canal']
-                , 'distanciaAntena' => $res['distanciaAntena'], 'potencia' => $res['potencia'], 'id' => $res['id']];
+        $llamadas[] = [ "tipoEnlace" => $res['tipoEnlace'],'cordenadaX' => $res['cordenadaX'], 
+            'cordenadaY'=> $res['cordenadaY'], 'tiempo' => $res['tiempo'], 'canal' => $res['canal']
+            ,'distanciaAntena' => $res['distanciaAntena'] ,'potencia' => $res['potencia'],'sinr' => $res['sinr']
+                ,'id' => $res['id']];
         }
         return $llamadas;
     }
-
-    function cargarDatosEnlacesPrimarios($prEnlace) {
-        $enlace = new Enlace();
-        $enlace = $prEnlace;
+    
+    function cargarDatosEnlacesPrimarios($prEnlace){
+        $enlace1 = new Enlace();
+        $enlace1 = $prEnlace;
         $conexion = new Conexion();
         $sql = "SELECT valor FROM pargenerales where codparametro = 'numcanales'";
         $result = $conexion->consultar($sql);
@@ -148,7 +158,9 @@ class Calculos {
             $canalesConPrimarios[$i] = 0;
         }
 
-        $sql = "SELECT tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia FROM enlace";
+
+        $sql = "SELECT tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia "
+                . "FROM enlace";
         $result = $conexion->consultar($sql);
         if ($result->num_rows > 0) {
             $array = array();
@@ -171,17 +183,20 @@ class Calculos {
             }
             $cuenta = 1;
 
-            foreach ($canalesConPrimarios as $key => $val) {
-                if ($val == 0) {
-                    $enlace->setCanal($cuenta);
+
+
+            foreach ($canalesConPrimarios as $key => $val){
+                if($val == 0){
+                    $enlace1->setCanal($cuenta);
                     break;
                 }
                 $cuenta++;
             }
-        } else {
-            $enlace->setCanal(1);
+
+        }else {
+            $enlace1->setCanal(1);
         }
-        $this->utilitario->insertarEnlaces($enlace);
+        $this->utilitario->insertarEnlaces($enlace1);
     }
 
     public function cargarDatosEnlacesSecundarios($enlace) {
@@ -231,8 +246,11 @@ class Calculos {
                 $enlaceSecundario->setCanal($res['canal']);
                 $enlacesSecundarios[] = $enlaceSecundario;
             }
-            if ($this->calcularSINRU($enlace, $enlacePrimario, $enlacesSecundarios, $atenuacion, $beta, $count) == true)
-                $count = $canales + 1;
+
+
+            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count, $canales) == true)
+                $count = $canales+1;   
+
             else {
                 $count++;
             }
