@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Description of Calculos
  *
@@ -7,16 +8,17 @@
 include_once 'Enlace.php';
 include_once 'Utilitario.php';
 include_once '../Controlador/Conexion.php';
+
 class Calculos {
-   
-    var $conexion; 
-    var $utilitario; 
-    
-    
+
+    var $conexion;
+    var $utilitario;
+
     function __construct() {
-        $this->conexion = new Conexion(); 
-        $this->utilitario= new Utilitario();
+        $this->conexion = new Conexion();
+        $this->utilitario = new Utilitario();
     }
+
 //dps(v,u) es la distancia entre el transmisor
 //primario interferente del enlace primario v al
 //receptor del enlace secundario u.
@@ -31,106 +33,105 @@ class Calculos {
         $x2 = $v->getCoordenadaX();
         $y1 = $u->getCoordenadaY();
         $y2 = $v->getCoordenadaY();
-        $a2 = pow(($x2-$x1),2);
-        $b2 = pow(($y2-$y1),2);
-        $c = pow(($a2+$b2),0.5);
+        $a2 = pow(($x2 - $x1), 2);
+        $b2 = pow(($y2 - $y1), 2);
+        $c = pow(($a2 + $b2), 0.5);
         return $c;
     }
+
     /**
      * 
      * @param type $pu: es la potencia de transmisión del transmisor del enlace secundario u.
      * @param type $pk, es la potencia de transmisión del transmisor interferente del enlace secundario k.
      * @param type $pv, es la potencia de transmisión del transmisor interferente del enlace primario v.
      * @param type $lds, lds(u) representa la distancia que existe entre el transmisor y receptor en el enlace
-                        secundario u que se desea analizar.
+      secundario u que se desea analizar.
      * @param type $dss, dss(k,u) es la distancia entre el transmisor interferente del enlace secundario k al
-                        receptor del enlace secundario u.
+      receptor del enlace secundario u.
      * @param type $dps, dps(v,u) es la distancia entre el transmisor
-                    primario interferente del enlace primario v al
-                    receptor del enlace secundario u.
+      primario interferente del enlace primario v al
+      receptor del enlace secundario u.
      * @param type $arregloP Todas los enlaces transmisores con sus coordenadas, potencias y demas atributos  
      * @param type $phi, Φ es el conjunto de transmisores secundarios
-                    que utilizan el mismo canal primario.
+      que utilizan el mismo canal primario.
      * @param type $n, n representa el factor de atenuación que sufre
-                    la señal en el enlace de comunicación que
-                    toma cualquier valor entre 2 y 4.
+      la señal en el enlace de comunicación que
+      toma cualquier valor entre 2 y 4.
      * $lds, $dss, $dps,
      */
-       
     protected function calcularSINRU($u, $v, $arregloP, $n, $beta, $canal) {
-        if ($v != null){
-            $pu= $u->getPotencia();
-            $pv= $v->getPotencia();
-            $numerador = $pu/pow(($u->getDistanciaAntena()), $n);
-            $den2= $pv / pow($this->calDps($v, $u), $n);
+        if ($v != null) {
+            $pu = $u->getPotencia();
+            $pv = $v->getPotencia();
+            $numerador = $pu / pow(($u->getDistanciaAntena()), $n);
+            $den2 = $pv / pow($this->calDps($v, $u), $n);
             $den1 = 0;
             $limI = 0;
             $potenciaK = 0;
             $limS = count($arregloP);
             $enlaceAux = new Enlace();
-            for ($i=$limI; $i<$limS;$i++){
+            for ($i = $limI; $i < $limS; $i++) {
                 $enlaceAux = $arregloP[$i];
                 $potenciaK = $enlaceAux->getPotencia();
-                $den1 = $den1 + ($potenciaK/(pow($this->calDps($arregloP[$i], $u),$n)));
+                $den1 = $den1 + ($potenciaK / (pow($this->calDps($arregloP[$i], $u), $n)));
             }
-            $resultado = $numerador/($den1+$den2);
-            if($resultado >= $beta){
+            $resultado = $numerador / ($den1 + $den2);
+            if ($resultado >= $beta) {
                 $u->setCanal($canal);
                 $this->utilitario->insertarEnlaces($u);
                 return true;
             }
-        }
-        else {
+        } else {
             $u->setCanal($canal);
             $this->utilitario->insertarEnlaces($u);
             return true;
         }
         return false;
     }
-    
-    public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima){
-     $count = 1;
-     $sql="delete from enlace";
-     $conexion = new Conexion();
-     $bandera = $this->conexion->actualizar($sql);
-     if($bandera) 
-     while ($numEnlacesPrima >= $count){
-        $enlace = new Enlace();
-        $enlace->setTipoEnlace("P");
-        $enlace->setDistanciaAntena(rand(1, 100));
-        $enlace->setCoordenadaX(rand(1, 200));
-        $enlace->setCoordenadaY(rand(1, 200));
-        $enlace->setTiempo(rand(1, 20));
-        $this->cargarDatosEnlacesPrimarios($enlace);
-        $count++;
-     }
-     $count = 1;
-     while($numEnlacesSecun >= $count){
-        $enlace = new Enlace();
-        $enlace->setTipoEnlace("S");
-        $enlace->setDistanciaAntena(rand(1, 100));
-        $enlace->setCoordenadaX(rand(1, 200));
-        $enlace->setCoordenadaY(rand(1, 200));
-        $enlace->setTiempo(rand(1, 20));
-        $this->cargarDatosEnlacesSecundarios($enlace);
-        $count++;
-     }
-     return $this->consultarEnlaces();
+
+    public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima) {
+        $count = 1;
+        $sql = "delete from enlace";
+        $conexion = new Conexion();
+        $bandera = $this->conexion->actualizar($sql);
+        if ($bandera)
+            while ($numEnlacesPrima >= $count) {
+                $enlace = new Enlace();
+                $enlace->setTipoEnlace("P");
+                $enlace->setDistanciaAntena(rand(1, 100));
+                $enlace->setCoordenadaX(rand(1, 200));
+                $enlace->setCoordenadaY(rand(1, 200));
+                $enlace->setTiempo(rand(1, 20));
+                $this->cargarDatosEnlacesPrimarios($enlace);
+                $count++;
+            }
+        $count = 1;
+        while ($numEnlacesSecun >= $count) {
+            $enlace = new Enlace();
+            $enlace->setTipoEnlace("S");
+            $enlace->setDistanciaAntena(rand(1, 100));
+            $enlace->setCoordenadaX(rand(1, 200));
+            $enlace->setCoordenadaY(rand(1, 200));
+            $enlace->setTiempo(rand(1, 20));
+            $this->cargarDatosEnlacesSecundarios($enlace);
+            $count++;
+        }
+        return $this->consultarEnlaces();
     }
-    
-    function consultarEnlaces(){
+
+    function consultarEnlaces() {
         $sql = "Select * from enlace";
         $resultado = $this->conexion->consultar($sql);
         $llamadas;
         while ($res = mysqli_fetch_array($resultado)) {
-        $llamadas[] = [ "tipoEnlace" => $res['tipoEnlace'],'cordenadaX' => $res['cordenadaX'], 
-            'cordenadaY'=> $res['cordenadaY'], 'tiempo' => $res['tiempo'], 'canal' => $res['canal']
-            ,'distanciaAntena' => $res['distanciaAntena'] ,'potencia' => $res['potencia'],'id' => $res['id']];
+            $llamadas[] = [ "tipoEnlace" => $res['tipoEnlace'], 'cordenadaX' => $res['cordenadaX'],
+                'cordenadaY' => $res['cordenadaY'], 'tiempo' => $res['tiempo'], 'canal' => $res['canal']
+                , 'distanciaAntena' => $res['distanciaAntena'], 'potencia' => $res['potencia'], 'id' => $res['id']];
         }
         return $llamadas;
     }
-    
-    function cargarDatosEnlacesPrimarios($prEnlace){
+
+    function cargarDatosEnlacesPrimarios($prEnlace) {
         $enlace = new Enlace();
         $enlace = $prEnlace;
         $conexion = new Conexion();
@@ -140,13 +141,13 @@ class Calculos {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $numCanales = $row['valor'];
-        } 
-        $canalesConPrimarios = array();
-        
-        for ($i = 1; $i <= $numCanales; $i++) {
-            $canalesConPrimarios[$i]=0;
         }
-                
+        $canalesConPrimarios = array();
+
+        for ($i = 1; $i <= $numCanales; $i++) {
+            $canalesConPrimarios[$i] = 0;
+        }
+
         $sql = "SELECT tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia FROM enlace";
         $result = $conexion->consultar($sql);
         if ($result->num_rows > 0) {
@@ -163,27 +164,27 @@ class Calculos {
                 $tamaño = count($array);
                 $array[$tamaño] = $enlace;
             }
-            foreach ($array as $key => $val){
-                if ($val->getTipoEnlace()== "P"){
-                    $canalesConPrimarios[$val->getCanal()] = 1;        
+            foreach ($array as $key => $val) {
+                if ($val->getTipoEnlace() == "P") {
+                    $canalesConPrimarios[$val->getCanal()] = 1;
                 }
             }
-            $cuenta=1;
+            $cuenta = 1;
 
-            foreach ($canalesConPrimarios as $key => $val){
-                if($val == 0){
+            foreach ($canalesConPrimarios as $key => $val) {
+                if ($val == 0) {
                     $enlace->setCanal($cuenta);
                     break;
                 }
                 $cuenta++;
             }
-        }else {
+        } else {
             $enlace->setCanal(1);
         }
         $this->utilitario->insertarEnlaces($enlace);
     }
-    
-    public function cargarDatosEnlacesSecundarios($enlace){
+
+    public function cargarDatosEnlacesSecundarios($enlace) {
         $count = 1;
         $canales = "";
         $sql = "Select valor from pargenerales where codparametro = 'numcanales'";
@@ -200,11 +201,11 @@ class Calculos {
         $beta = "";
         $sql = "Select valor from pargenerales where codparametro = 'beta'";
         $resultado = $this->conexion->consultar($sql);
-            while ($res = mysqli_fetch_array($resultado)) {
-              $beta = $res['valor'];
+        while ($res = mysqli_fetch_array($resultado)) {
+            $beta = $res['valor'];
         }
-        while ($canales >= $count){
-            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'P'";
+        while ($canales >= $count) {
+            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'P'";
             $resultado = $this->conexion->consultar($sql);
             $enlacePrimario = new Enlace();
             while ($res = mysqli_fetch_array($resultado)) {
@@ -217,7 +218,7 @@ class Calculos {
                 $enlacePrimario->setCanal($res['canal']);
             }
             $enlacesSecundarios = array();
-            $sql = "Select * from Enlace where canal = '".$count."' and tipoEnlace = 'S'";
+            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'S'";
             $resultado = $this->conexion->consultar($sql);
             while ($res = mysqli_fetch_array($resultado)) {
                 $enlaceSecundario = new Enlace();
@@ -228,17 +229,52 @@ class Calculos {
                 $enlaceSecundario->setTiempo($res['tiempo']);
                 $enlaceSecundario->setPotencia($res['potencia']);
                 $enlaceSecundario->setCanal($res['canal']);
-                $enlacesSecundarios[] = $enlaceSecundario;                
+                $enlacesSecundarios[] = $enlaceSecundario;
             }
-            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count) == true)
-                $count = $canales+1;   
+            if ($this->calcularSINRU($enlace, $enlacePrimario, $enlacesSecundarios, $atenuacion, $beta, $count) == true)
+                $count = $canales + 1;
             else {
                 $count++;
             }
         }
-    
-}
-      
- 
-    
+    }
+
+    public function usuariosSecundariosXCanal() {
+        $sql = "SELECT `canal`, COUNT(*) as cuenta FROM `enlace` WHERE `tipoEnlace` = 'S' GROUP BY `canal`";
+        $resultado = $this->conexion->consultar($sql);
+        while ($res = mysqli_fetch_array($resultado)) {
+            $cuentaCanales[$res['canal']] = $res['cuenta'];
+        }
+        return $cuentaCanales;
+    }
+
+    public function tamanoLlamada() {
+        $sql = "SELECT `valor` FROM `pargenerales` WHERE `codparametro`='tamanollam'";
+        $resultado = $this->conexion->consultar($sql);
+        while ($res = mysqli_fetch_array($resultado)) {
+            $tamanoLlamada = $res['valor'];
+        }
+        return $tamanoLlamada;
+    }
+
+    public function getAnchoBanda() {
+        $sql = "SELECT `valor` FROM `pargenerales` WHERE `codparametro`='anchobanda'";
+        $resultado = $this->conexion->consultar($sql);
+        while ($res = mysqli_fetch_array($resultado)) {
+            $anchoBanda = $res['valor'];
+        }
+        return $anchoBanda;
+
+    }
+
+    public function eficienciaEspectral() {
+        $anchoBanda = $this->getAnchoBanda();
+        $tamanoLlamada = $this->tamanoLlamada();
+        $uSecundarios = $this->usuariosSecundariosXCanal();
+        foreach ($uSecundarios as $key => $val) {
+            $eficiencia[$key] = ($tamanoLlamada * $val) / $anchoBanda;
+        }
+        return $eficiencia;
+    }
+
 }
