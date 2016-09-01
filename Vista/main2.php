@@ -24,18 +24,38 @@ and open the template in the editor.
             <div id="modalGrafica">
                 <ul >
                     <li >
-                        <input type="radio" name="grafica" value="usuariosXCanal"/> 
-                        <label for="usuariosXcanal">Usuarios por Canal</label>
+                        <input type="radio" name="grafica" value="eficienciaEspectral"/> 
+                        <label for="eficienciaEspectral">Eficiencia Espectral</label>
                     </li>
                     <li >
-                        <input type="radio" name="grafica" value="tiempo"/> <label>opcion 1</label>
+                        <input type="radio" name="grafica" value="usuarioSecundarios"/> 
+                        <label for="usuariosSecundarios">Usuarios Secundarios</label>
                     </li>
                     <li >
-                        <input type="radio" name="grafica" value="tiempoX"/> <label>opcion 1</label>
+                        <input type="radio" name="grafica" value="analisisLambda02"/> 
+                        <label for="analisisLambda02">Analisis Lambda 0,2</label>
+                    </li>
+                    <li >
+                        <input type="radio" name="grafica" value="analisisLambda05"/> 
+                        <label for="analisisLambda05">Analisis Lambda 0,5</label>
+                    </li>
+                    <li >
+                        <input type="radio" name="grafica" value="analisisLambda08"/> 
+                        <label for="analisisLambda08">Analisis Lambda 0,8</label>
                     </li>
                 </ul>
+                <div id="titulo">
+                </div>
+                <div>
+                <div id="labelY" class="labelY"></div>
                 <div id="divCanvas">
                 </div>
+                </div>
+                <div>
+                <div id="labelX" class="labelX"></div>
+                </div>
+            </div>
+            <div id="cargando">
             </div>
         <div id="formulario" style="text-align: left; margin: auto">
             <table>

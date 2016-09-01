@@ -99,34 +99,57 @@ class Calculos {
     }
 
     public function cargarDatosEnlaces($numEnlacesSecun, $numEnlacesPrima) {
-        $count = 1;
+        
         $sql = "delete from enlace";
         $conexion = new Conexion();
         $bandera = $this->conexion->actualizar($sql);
-        if ($bandera)
+        for($beta = 4; $beta <= 20; $beta=$beta+3){
+            $iteraciones = 1;
+            while ($iteraciones <= 50){
+            if ($bandera)
+            $count = 1;
             while ($numEnlacesPrima >= $count) {
                 $enlace = new Enlace();
                 $enlace->setTipoEnlace("P");
-                $enlace->setDistanciaAntena(rand(1, 100));
-                $enlace->setCoordenadaX(rand(1, 200));
-                $enlace->setCoordenadaY(rand(1, 200));
+                $enlace->setDistanciaAntena(rand(1, 50));
+                $enlace->setCoordenadaX(rand(1, 100));
+                $enlace->setCoordenadaY(rand(1, 100));
                 $enlace->setTiempo(rand(1, 20));
+                $enlace->setBeta($beta);
+                $enlace->setIteracion($iteraciones);
                 $this->cargarDatosEnlacesPrimarios($enlace);
                 $count++;
             }
-        $count = 1;
-        while ($numEnlacesSecun >= $count) {
-            $enlace = new Enlace();
-            $enlace->setTipoEnlace("S");
-            $enlace->setDistanciaAntena(rand(1, 100));
-            $enlace->setCoordenadaX(rand(1, 200));
-            $enlace->setCoordenadaY(rand(1, 200));
-            $enlace->setTiempo(rand(1, 20));
-            $this->cargarDatosEnlacesSecundarios($enlace);
-            $count++;
+            $count = 1;
+            while ($numEnlacesSecun >= $count) {
+                $enlace = new Enlace();
+                $enlace->setTipoEnlace("S");
+                $enlace->setDistanciaAntena(rand(1, 50));
+                $enlace->setCoordenadaX(rand(1, 100));
+                $enlace->setCoordenadaY(rand(1, 100));
+                $enlace->setTiempo(rand(1, 20));
+                $enlace->setBeta($beta);
+                $enlace->setIteracion($iteraciones);
+                $this->cargarDatosEnlacesSecundarios($enlace);
+                $count++;
+            }
+            $iteraciones++;
+            }
         }
-        return $this->consultarEnlaces();
+        $this->insertarAnalisisDatos();
+        $this->insertarAnalisisDos();
+        return "fin"; //$this->consultarEnlaces()
     }
+    
+    public function insertarAnalisisDos(){
+        $sql = "delete from analisis_datos2";
+        $bandera = $this->conexion->actualizar($sql);
+        if($bandera){
+            $sql= "insert into analisis_datos2 SELECT * FROM `analisisDos`";
+            $this->conexion->insertar($sql);
+        }
+    }    
+    
 
     function consultarEnlaces() {
         $sql = "Select * from enlace";
@@ -160,7 +183,7 @@ class Calculos {
 
 
         $sql = "SELECT tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia "
-                . "FROM enlace";
+                . "FROM enlace where beta =". $enlace1->getBeta() . " and iteracion = ". $enlace1->getIteracion();
         $result = $conexion->consultar($sql);
         if ($result->num_rows > 0) {
             $array = array();
@@ -212,15 +235,10 @@ class Calculos {
         $resultado = $this->conexion->consultar($sql);
         while ($res = mysqli_fetch_array($resultado)) {
             $atenuacion = $res['valor'];
-        }
-        $beta = "";
-        $sql = "Select valor from pargenerales where codparametro = 'beta'";
-        $resultado = $this->conexion->consultar($sql);
-        while ($res = mysqli_fetch_array($resultado)) {
-            $beta = $res['valor'];
-        }
+        } 
         while ($canales >= $count) {
-            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'P'";
+            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'P' and beta = ".
+                            $enlace->getBeta(). " and iteracion = " . $enlace->getIteracion();
             $resultado = $this->conexion->consultar($sql);
             $enlacePrimario = new Enlace();
             while ($res = mysqli_fetch_array($resultado)) {
@@ -233,7 +251,8 @@ class Calculos {
                 $enlacePrimario->setCanal($res['canal']);
             }
             $enlacesSecundarios = array();
-            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'S'";
+            $sql = "Select * from Enlace where canal = '" . $count . "' and tipoEnlace = 'S' and beta = ".
+                            $enlace->getBeta(). " and iteracion = " . $enlace->getIteracion();
             $resultado = $this->conexion->consultar($sql);
             while ($res = mysqli_fetch_array($resultado)) {
                 $enlaceSecundario = new Enlace();
@@ -248,9 +267,8 @@ class Calculos {
             }
 
 
-            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $beta, $count, $canales) == true)
+            if ($this->calcularSINRU($enlace, $enlacePrimario,$enlacesSecundarios,$atenuacion, $enlace->getBeta(), $count, $canales) == true)
                 $count = $canales+1;   
-
             else {
                 $count++;
             }
@@ -258,10 +276,10 @@ class Calculos {
     }
 
     public function usuariosSecundariosXCanal() {
-        $sql = "SELECT `canal`, COUNT(*) as cuenta FROM `enlace` WHERE `tipoEnlace` = 'S' GROUP BY `canal`";
+        $sql = "SELECT `canal`, beta, iteracion, COUNT(*) as cuenta FROM `enlace` WHERE `tipoEnlace` = 'S' and canal <> 0 GROUP BY `canal`, beta, iteracion";
         $resultado = $this->conexion->consultar($sql);
         while ($res = mysqli_fetch_array($resultado)) {
-            $cuentaCanales[$res['canal']] = $res['cuenta'];
+            $cuentaCanales[$res['beta'] ."|". $res['iteracion']."|".$res['canal']] = $res['cuenta'];
         }
         return $cuentaCanales;
     }
@@ -282,7 +300,6 @@ class Calculos {
             $anchoBanda = $res['valor'];
         }
         return $anchoBanda;
-
     }
 
     public function eficienciaEspectral() {
@@ -294,5 +311,20 @@ class Calculos {
         }
         return $eficiencia;
     }
-
+    
+    public function insertarAnalisisDatos(){
+        $sql = "delete from analisis_datos";
+        $bandera = $this->conexion->actualizar($sql);
+            if ($bandera){
+            $eficienia = $this->eficienciaEspectral();
+            $usuSecundarios = $this->usuariosSecundariosXCanal();
+            foreach ($eficienia as $key => $val) {
+                $aux = explode("|",$key);
+                $sql = "insert into analisis_datos values (".$aux[0].",".$aux[1].",".$aux[2].
+                        ",".$eficienia[$key].",".$usuSecundarios[$key].")";
+                $this->conexion->insertar($sql);
+            }
+        }
+    }
+    
 }

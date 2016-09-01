@@ -26,15 +26,21 @@ class Utilitario {
         $tiempo = $enlace->getTiempo();
         $tipoEnlace = $enlace->getTipoEnlace();
         $sinr = $enlace->getSinr();
+        $beta = $enlace->getBeta();
+        $iteracion = $enlace->getIteracion();
         if($sinr != null){
-            $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia, sinr) "
+            $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia, sinr,".
+                "beta, iteracion)"
                 . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo.
-                "','".$canal."','".$distanciaAntena."','".$potencia."',".$sinr.")";
+                "','".$canal."','".$distanciaAntena."','".$potencia."',".$sinr. ", ". $beta.", ".$iteracion.
+                    ")";
         }
         else{
-        $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia) "
+        $sql = "insert into enlace (tipoEnlace, cordenadaX, cordenadaY, tiempo, canal, distanciaAntena, potencia,".
+                "beta, iteracion)"
                 . "values ('".$tipoEnlace."','".$coordenadaX."','".$coordenadaY."','".$tiempo.
-                "','".$canal."','".$distanciaAntena."','".$potencia."')";
+                "','".$canal."','".$distanciaAntena."','".$potencia."', ". $beta.", ".$iteracion.
+                    ")";
         }
         $conexion->insertar($sql);
     }
@@ -50,4 +56,93 @@ class Utilitario {
         return $grafica;
     }
     
+    public function analisisEficiencia(){
+        $conexion = new Conexion();
+        $sql = "SELECT beta, max(suma) as maximo FROM `sumeficienciaiteracion` group by beta";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['beta'], "y" => $res['maximo']];
+        }   
+        $grafica['labelY'] = 'Eficiencia Espectral';
+        $grafica['labelX'] = 'Umbral';
+        $grafica['titulo'] = 'Grafica Eficiencia Espectral';
+        $grafica['pasos'] = 7;
+        $grafica['escala'] = 1;
+        $grafica['inicia'] = 12;
+        return $grafica;
+    }
+    
+    public function analisisUsuarios(){
+        $conexion = new Conexion();
+        $sql = "SELECT beta, max(suma) as maximo FROM `sumUsuariosIteracion` group by beta";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['beta'], "y" => $res['maximo']];
+        }   
+        $grafica['labelY'] = 'Usuarios Secundarios';
+        $grafica['labelX'] = 'Umbral';
+        $grafica['titulo'] = 'Grafica Usuarios Secundarios';
+        $grafica['pasos'] = 7;
+        $grafica['escala'] = 1;
+        $grafica['inicia'] = 12;
+        return $grafica;
+    }
+    
+     public function graficaLambdaCeroDos(){
+        $conexion = new Conexion();
+        $sql = "SELECT  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`".
+        "FROM  `analisis_datos2` where lambda = '0.2'".
+        "GROUP BY  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['numUsuariosXunoMLambda'], "y" => $res['eficienciaXLambda']];
+        }
+        $grafica['labelY'] = 'Eficiencia Espectral';
+        $grafica['labelX'] = 'Numero Usuarios';
+        $grafica['titulo'] = 'Grafica Lambda 0,2';
+        $grafica['pasos'] = 7;
+        $grafica['escala'] = 2;
+        $grafica['inicia'] = 0;
+        return $grafica;
+    }
+    
+    public function graficaLambdaCeroCinco(){
+        $conexion = new Conexion();
+        $sql = "SELECT  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`".
+        "FROM  `analisis_datos2` where lambda = '0.5'".
+        "GROUP BY  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['numUsuariosXunoMLambda'], "y" => $res['eficienciaXLambda']];
+        }
+        $grafica['labelY'] = 'Eficiencia Espectral';
+        $grafica['labelX'] = 'Numero Usuarios';
+        $grafica['titulo'] = 'Grafica Lambda 0,5';
+        $grafica['pasos'] = 7;
+        $grafica['escala'] = 2;
+        $grafica['inicia'] = 0;
+        return $grafica;
+    }
+    public function graficaLambdaCeroOcho(){
+        $conexion = new Conexion();
+        $sql = "SELECT  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`".
+        "FROM  `analisis_datos2` where lambda = '0.8'".
+        "GROUP BY  `lambda` ,  `eficienciaXLambda` ,  `numUsuariosXunoMLambda`";
+        $resultado = $conexion->consultar($sql);
+        $grafica;
+        while ($res = mysqli_fetch_array($resultado)) {
+            $grafica[] = ["x" => $res['numUsuariosXunoMLambda'], "y" => $res['eficienciaXLambda']];
+        }   
+        $grafica['labelY'] = 'Eficiencia Espectral';
+        $grafica['labelX'] = 'Numero Usuarios';
+        $grafica['titulo'] = 'Grafica Lambda 0,8';
+        $grafica['pasos'] = 7;
+        $grafica['escala'] = 2;
+        $grafica['inicia'] = 0;
+        return $grafica;
+    }
 }

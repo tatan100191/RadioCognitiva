@@ -21,9 +21,22 @@ if($_POST['accion']== 1){
 }
 else if($_POST['accion']== 2){
     $tipoGrafica = $_POST['tipoGrafica'];
-    if ($tipoGrafica == "usuariosXCanal"){
-        echo json_encode($utilitario->usuariosXcanal());
+    if ($tipoGrafica == "eficienciaEspectral"){
+        echo json_encode($utilitario->analisisEficiencia());
     }
+    if ($tipoGrafica == "usuarioSecundarios"){
+        echo json_encode($utilitario->analisisUsuarios());
+    }
+    if ($tipoGrafica == "analisisLambda02"){
+        echo json_encode($utilitario->graficaLambdaCeroDos());
+    }
+    if ($tipoGrafica == "analisisLambda05"){
+        echo json_encode($utilitario->graficaLambdaCeroCinco());
+    }
+    if ($tipoGrafica == "analisisLambda08"){
+        echo json_encode($utilitario->graficaLambdaCeroOcho());
+    }
+    
 }
 
 

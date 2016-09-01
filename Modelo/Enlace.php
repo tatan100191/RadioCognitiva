@@ -21,11 +21,28 @@ class Enlace {
     var $canal;
     var $distanciaAntena;
     var $sinr;
+    var $beta;
+    var $iteracion;
     const POTENCIA = 10;
     function __construct() {
     }
-    
-    public function getTiempo() {
+    public function getBeta() {
+        return $this->beta;
+    }
+
+    public function setBeta($beta) {
+        $this->beta = $beta;
+    }
+
+    public function getIteracion() {
+        return $this->iteracion;
+    }
+
+    public function setIteracion($iteracion) {
+        $this->iteracion = $iteracion;
+    }
+
+        public function getTiempo() {
         return $this->tiempo;
     }
 

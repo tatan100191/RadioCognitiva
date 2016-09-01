@@ -8,6 +8,33 @@ ul li{
     width: 20%;
 }
 
+#divCanvas{
+    display: inline-block;
+    margin-left: 100px;
+}
+
+.labelY{
+    -webkit-transform: rotate(-90deg); 
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    width: 400px;
+    margin-top: 0px;
+    position: relative;
+    right: 170px;
+}
+
+.labelX{
+    text-align: center;
+    margin-top: 10px; 
+}
+
+#titulo{
+    margin-top: 50px; 
+    text-align: center;
+    font-size: 18px;
+}
 ul {
     text-align: center;
     margin: 0;
